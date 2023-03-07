@@ -2240,8 +2240,8 @@ var app = (function () {
     		const token = "abc";
 
     		//console.log("http://localhost:3000/api/auth/" + token);
-    		network_1("/api/auth/" + token).then(response => {
-    			
+    		network_1("http://localhost:3000/api/auth/" + token).then(response => {
+    			console.log(response);
     		}); /*console.log(response);
     if (response.hasOwnProperty("user")) {
       session.set(response.user);

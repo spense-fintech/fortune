@@ -9,7 +9,8 @@
   onMount(async () => {
     const token = "abc";
     //console.log("http://localhost:3000/api/auth/" + token);
-    request("/api/auth/" + token).then((response) => {
+    request("http://localhost:3000/api/auth/" + token).then((response) => {
+      console.log(response);
       /*console.log(response);
       if (response.hasOwnProperty("user")) {
         session.set(response.user);
