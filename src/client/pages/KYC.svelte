@@ -1,15 +1,48 @@
 <script>
-  import { Card, CardBody, CardHeader, FormGroup, Label } from "sveltestrap";
+  import { CardBody, CardHeader, FormGroup, Label, Button } from "sveltestrap";
   import Input from "sveltestrap/src/Input.svelte";
   import { onMount } from "svelte";
+  import { request } from "../services/network.js";
+  import { navigateTo } from "svelte-router-spa";
 
   let requiredFields = [];
   let bankList = getBankList();
-  let user = {};
+  let user = {
+    info: {
+      basic_details: {
+        full_name: "",
+        gender: "",
+        mobile_number: "",
+        email: "",
+        date_of_birth: "",
+        marital_status: "",
+        annual_income: "",
+      },
+      address: {
+        city: "",
+        state: "",
+        country: "",
+        pin: "",
+        landmark: "",
+        address_line_1: "",
+      },
+      identification: {
+        pan_number: "",
+        aadhar_number: "",
+      },
+      bank_account: {
+        name: "",
+        account_number: "",
+        account_type: "",
+        ifsc_code: "",
+      },
+    },
+  };
 
   onMount(async () => {
     request("/api/userauth/session/", "GET").then((data) => {
       user = data.user;
+      console.log(user);
     });
   });
   function getBankList() {
@@ -20,6 +53,17 @@
       "CANADA BANK",
       "THE VARACHHA CO-OPERATIVE BANK",
     ];
+  }
+
+  let checkbox = false;
+  async function handleKYC(e) {
+    e.preventDefault();
+    if (checkbox) {
+      await request("/api/user", "PUT", user);
+      navigateTo("/landing");
+    } else {
+      console.log("User has not confirmed the details");
+    }
   }
   /**
    * bind:value={user.info.basic_details.full_name}
@@ -49,22 +93,29 @@
     <h3>Onboarding</h3>
   </CardHeader>
   <CardBody>
-    <form>
+    <form on:submit={handleKYC}>
       <Label for="name">Full Name</Label>
       <FormGroup>
         <Input
           type="text"
           name="datasource_id"
           placeholder="Full Name"
+          bind:value={user.info.basic_details.full_name}
           required
         />
       </FormGroup>
       <Label for="name">Gender</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" required placeholder="Gender">
-          <option>M</option>
-          <option>F</option>
-          <option>O</option>
+        <Input
+          type="select"
+          name="datasource_id"
+          required
+          placeholder="Select"
+          bind:value={user.info.basic_details.gender}
+        >
+          <option>MALE</option>
+          <option>FEMALE</option>
+          <option>OTHER</option>
         </Input>
       </FormGroup>
       <Label for="name">Mobile Number</Label>
@@ -73,20 +124,40 @@
           type="text"
           name="datasource_id"
           required
+          readonly
           placeholder="Mobile Number"
+          bind:value={user.phone}
         />
       </FormGroup>
       <Label for="name">Email</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" required placeholder="Email" />
+        <Input
+          type="text"
+          name="datasource_id"
+          required
+          placeholder="Email"
+          bind:value={user.info.basic_details.email}
+        />
       </FormGroup>
       <Label for="name">DOB</Label>
       <FormGroup>
-        <Input type="date" name="datasource_id" placeholder="DOB" />
+        <Input
+          type="date"
+          name="datasource_id"
+          required
+          placeholder="DOB"
+          bind:value={user.info.basic_details.date_of_birth}
+        />
       </FormGroup>
       <Label for="name">Marital Status</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" placeholder="Marital Status">
+        <Input
+          type="select"
+          name="datasource_id"
+          required
+          placeholder="Marital Status"
+          bind:value={user.info.basic_details.marital_status}
+        >
           <option>MARRIED</option>
           <option>SINGLE</option>
           <option>DIVORCED</option>
@@ -100,15 +171,28 @@
           name="datasource_id"
           required
           placeholder="Annual Income"
+          bind:value={user.info.basic_details.annual_income}
         />
       </FormGroup>
       <Label for="name">City</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" required placeholder="City" />
+        <Input
+          type="text"
+          name="datasource_id"
+          required
+          placeholder="City"
+          bind:value={user.info.address.city}
+        />
       </FormGroup>
       <Label for="name">State</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" required placeholder="State" />
+        <Input
+          type="text"
+          name="datasource_id"
+          required
+          placeholder="State"
+          bind:value={user.info.address.state}
+        />
       </FormGroup>
       <Label for="name">Country</Label>
       <FormGroup>
@@ -117,11 +201,18 @@
           name="datasource_id"
           required
           placeholder="Country"
+          bind:value={user.info.address.country}
         />
       </FormGroup>
       <Label for="name">Pin</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" required placeholder="Pin" />
+        <Input
+          type="text"
+          name="datasource_id"
+          required
+          placeholder="Pin"
+          bind:value={user.info.address.pin}
+        />
       </FormGroup>
       <Label for="name">Landmark</Label>
       <FormGroup>
@@ -130,6 +221,7 @@
           name="datasource_id"
           required
           placeholder="Landmark"
+          bind:value={user.info.address.landmark}
         />
       </FormGroup>
       <Label for="name">Address Line 1</Label>
@@ -139,19 +231,38 @@
           name="datasource_id"
           required
           placeholder="Address Line 1"
+          bind:value={user.info.address.address_line_1}
         />
       </FormGroup>
       <Label for="name">Pan Number</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" placeholder="Pan Number" />
+        <Input
+          type="text"
+          name="datasource_id"
+          required
+          placeholder="Pan Number"
+          bind:value={user.info.identification.pan_number}
+        />
       </FormGroup>
       <Label for="name">Aadhaar Number</Label>
       <FormGroup>
-        <Input type="text" name="datasource_id" placeholder="Aadhar Number" />
+        <Input
+          type="text"
+          name="datasource_id"
+          required
+          placeholder="Aadhaar Number"
+          bind:value={user.info.identification.aadhar_number}
+        />
       </FormGroup>
       <Label for="name">Bank Name</Label>
       <FormGroup>
-        <Input type="select" name="Bank Name" placeholder="Bank Name" required>
+        <Input
+          type="select"
+          name="Bank Name"
+          required
+          placeholder="Bank Name"
+          bind:value={user.info.bank_account.name}
+        >
           <option>BANK OF BARODA</option>
           <option>BASIN CATHOLIC BANK LIMITED</option>
           <option>CANADA BANK</option>
@@ -165,17 +276,19 @@
           name="datasource_id"
           required
           placeholder="Account Number"
+          bind:value={user.info.bank_account.account_number}
         />
       </FormGroup>
       <Label for="name">Bank Account Type</Label>
       <FormGroup>
         <Input
-          type="text"
+          type="select"
           name="datasource_id"
           required
           placeholder="Account Type"
+          bind:value={user.info.bank_account.account_type}
         >
-          <option>SAVING</option>
+          <option>SAVINGS</option>
           <option>CURRENT</option>
         </Input>
       </FormGroup>
@@ -186,8 +299,23 @@
           name="datasource_id"
           required
           placeholder="IFSC Code"
+          bind:value={user.info.bank_account.ifsc_code}
         />
       </FormGroup>
+      <div class="checkbox-field">
+        <FormGroup>
+          <Input
+            id="c1"
+            type="checkbox"
+            required
+            label="Above details provided are true to my knowledge"
+            bind:checked={checkbox}
+          />
+        </FormGroup>
+      </div>
+      <div>
+        <Button block type="submit">Submit</Button>
+      </div>
     </form>
   </CardBody>
 </div>

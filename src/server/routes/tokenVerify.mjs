@@ -51,26 +51,30 @@ router
         .status(401)
         .send({ message: "kid must be passed in the JsonWebToken header" });
     }
-    jwt.verify(req.params.token, credentials[kid], function (err, payload) {
-      if (err || payload === undefined) {
-        res.status(401).send({ message: "Unauthorized" });
-      } else {
-        try {
-          if (Math.abs(payload.iat - new Date().getTime() / 1000) < 300) {
-            //user checked
-            const result = checkLogin(req, payload);
-            //console.log(result);
-            //console.log(payload);
-            res.redirect("/splash");
-            //res.status(200).send({ message: "Session Saved" });
-          } else {
-            res.status(401).send({ message: "Token Expired" });
+    jwt.verify(
+      req.params.token,
+      credentials[kid],
+      async function (err, payload) {
+        if (err || payload === undefined) {
+          res.status(401).send({ message: "Unauthorized" });
+        } else {
+          try {
+            if (Math.abs(payload.iat - new Date().getTime() / 1000) < 300) {
+              //user checked
+              const result = await checkLogin(req, payload);
+              //console.log(result);
+              //console.log(payload);
+              res.redirect("/splash");
+              //res.status(200).send({ message: "Session Saved" });
+            } else {
+              res.status(401).send({ message: "Token Expired" });
+            }
+          } catch (_err) {
+            res.status(401).send({ message: "Invalid Token" });
           }
-        } catch (_err) {
-          res.status(401).send({ message: "Invalid Token" });
         }
       }
-    });
+    );
   })
 
   /*.post("/", async (req, res) => {
@@ -91,6 +95,7 @@ router
   });
 
 async function checkLogin(req, token) {
+  console.log(token);
   const user = await db.query("SELECT * FROM user WHERE phone = ?", [
     token.phone,
   ]);
