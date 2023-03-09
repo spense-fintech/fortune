@@ -1,32 +1,17 @@
 import { db, model } from "mysql-model-router";
 
-const datasource = model(
+const user = model(
   db,
-  "datasource",
+  "user",
   {
-    datasource_id: "required|integer",
-    name: "required|string",
-    type: "required|string",
-    config: "required|string",
+    user_id: "required|integer",
+    phone: "required|string",
+    phone_country_code: "required|string",
+    joined: "required|string",
+    info: "required|string",
   },
-  "datasource_id",
-  ["name"]
+  "user_id",
+  ["phone"]
 );
 
-const api = model(
-  db,
-  "api",
-  {
-    api_id: "required|integer",
-    datasource_id: "required|integer",
-    slug: "required|string",
-    method: "required|string",
-    query: "required|string",
-    description: "required|string",
-    override: "required|string",
-  },
-  "api_id",
-  ["datasource_id", "slug", "method"]
-);
-
-export { datasource, api };
+export { user };
