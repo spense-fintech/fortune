@@ -24,19 +24,10 @@ router
       }
     );
     try {
-      res.redirect("http://localhost:3000/api/auth/token/" + token);
-      //res.status(200).send({ url: "http://localhost:3000/api/auth/" + token });
+      res.status(200).send({ data: req.params.token, count: 1 });
     } catch (err) {
       errorResponse(res, err);
     }
-  })
-  .get("/token/:token", async (req, res) => {
-    /*try {
-      res.status(200).send({ data: req.params.token, count: 1 });
-      console.log(data);
-    } catch (err) {
-      errorResponse(res, err);
-    }*/
 
     let credentials = {};
     if (existsSync("./client.json")) {
@@ -48,7 +39,7 @@ router
         credentials[CLIENT_ID] = CLIENT_KEY;
       }
     }
-    let token = req.params.token;
+    // let token = req.params.token;
     let kid = "";
     try {
       kid = JSON.parse(Buffer.from(token.toString().split(".")[0], "base64"))[
@@ -86,7 +77,6 @@ router
       header: { typ: "JWT", kid: process.env.CLIENT_ID },
     });
     try {
-      //res.redirect("http://localhost:3000/api/auth/" + token)
       res.status(200).send({ url: "http://localhost:3000/api/auth/" + token });
     } catch (err) {
       errorResponse(res, err);

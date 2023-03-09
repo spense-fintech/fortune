@@ -1,4 +1,5 @@
 <script>
+<<<<<<< HEAD
   //import { navigateTo } from "svelte-router-spa";
   import { onMount } from "svelte";
   //import { session } from "../services/store";
@@ -22,10 +23,30 @@
       if (response.hasOwnProperty("user")) {
         session.set(response.user);
         navigateTo("/datasource");
+=======
+  import { navigateTo } from "svelte-router-spa";
+  import { request } from "../services/network.js";
+  import { session } from "../services/store.js";
+  request("/api/userauth/session/", "GET").then((data) => {
+    session.set(data);
+    if (data.hasOwnProperty("user") && data.user.joined) {
+      if (
+        JSON.stringify(data.user.info.address) != "{}" &&
+        JSON.stringify(data.user.info.identification) != "{}" &&
+        JSON.stringify(data.user.info.bank_account) != "{}" &&
+        data.user.info.kyc_status != false
+      ) {
+        //navigateTo("/Home");
+        console.log("Welcome you user");
+>>>>>>> 6a8b40e8bbf5aa8942c2ae680e59576cfdd03938
       } else {
-        session.set({});
-        navigateTo("login");
-      }*/
-    });
+        //navigateTo("/Onboarding");
+        // KYC?
+        //user.info["kyc_status"] = true;
+        navigateTo("/kyc");
+      }
+    } else {
+      navigateTo("/landing");
+    }
   });
 </script>
