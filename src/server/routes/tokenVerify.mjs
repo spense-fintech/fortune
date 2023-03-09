@@ -2,12 +2,11 @@ import express from "express";
 import { errorResponse } from "./../commons/function.js";
 import jwt from "jsonwebtoken";
 import { existsSync } from "node:fs";
-const { sign } = jwt;
 const router = express.Router();
 // const jwt = require("jsonwebtoken");
 router
   .get("/test", async (req, res) => {
-    const token = sign(
+    const token = jwt.sign(
       {
         phone_country_code: "+91",
         phone: "9999991111",
@@ -24,11 +23,13 @@ router
       }
     );
     try {
-      res.status(200).send({ data: req.params.token, count: 1 });
+      res.redirect("http://localhost:3000/api/auth/token/" + token);
+      //res.status(200).send({ url: "http://localhost:3000/api/auth/" + token });
     } catch (err) {
       errorResponse(res, err);
     }
-
+  })
+  .get("/token/:token", async (req, res) => {
     let credentials = {};
     if (existsSync("./client.json")) {
       credentials = require("./client.json");
@@ -39,7 +40,7 @@ router
         credentials[CLIENT_ID] = CLIENT_KEY;
       }
     }
-    // let token = req.params.token;
+    let token = req.params.token;
     let kid = "";
     try {
       kid = JSON.parse(Buffer.from(token.toString().split(".")[0], "base64"))[
@@ -58,9 +59,10 @@ router
           if (Math.abs(payload.iat - new Date().getTime() / 1000) < 300) {
             //user checked
             const result = checkLogin(req, payload);
-            console.log(result);
-            console.log(payload);
-            res.status(200).send({ message: "Session Saved" });
+            //console.log(result);
+            //console.log(payload);
+            res.redirect("/splash");
+            //res.status(200).send({ message: "Session Saved" });
           } else {
             res.status(401).send({ message: "Token Expired" });
           }
@@ -71,17 +73,18 @@ router
     });
   })
 
-  .post("/", async (req, res) => {
-    const token = sign(req.body.user, process.env.CLIENT_KEY, {
+  /*.post("/", async (req, res) => {
+    const token = jwt.sign(req.body.user, process.env.CLIENT_KEY, {
       algorithm: "HS256",
       header: { typ: "JWT", kid: process.env.CLIENT_ID },
     });
     try {
+      //res.redirect("http://localhost:3000/api/auth/" + token)
       res.status(200).send({ url: "http://localhost:3000/api/auth/" + token });
     } catch (err) {
       errorResponse(res, err);
     }
-  })
+  })*/
 
   .get("/session", async (req, res) => {
     res.send(req.session);
@@ -93,10 +96,6 @@ async function checkLogin(req, token) {
   ]);
   if (user.length > 0) {
     req.session.user = user[0];
-    return {
-      type: "success",
-      message: "User found",
-    };
   } else {
     // await user.find[phone = token.phone]
     await db.query("INSERT INTO user (phone, info) VALUES (?,?)", [
@@ -140,10 +139,6 @@ async function checkLogin(req, token) {
       token.phone,
     ]);
     req.session.user = user[0];
-    return {
-      type: "success",
-      message: "Created new user",
-    };
   }
 }
 
