@@ -8,6 +8,7 @@ router.put("/", async (req, res) => {
   user
     .update(req.body)
     .then((response) => {
+      req.session.user = response;
       res.send(response);
     })
     .catch((err) => {

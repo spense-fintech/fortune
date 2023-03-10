@@ -7,13 +7,17 @@
   //admin true redirect to datasoruce + local storage
   //else redirect to login + delete local storage
   let user = {
-    name: "abc",
-    age: 20,
-    gender: "female",
+    phone_country_code: "+91",
+    phone: "9999991111",
+    email: "test@spense.money",
+    gender: "Male",
+    age: "20",
+    income: "50000",
+    name: "Guest",
   };
 
   onMount(async () => {
-    request("/api/auth/", "post", { user: {} }).then((response) => {
+    request("/api/auth/", "post", { user: user }).then((response) => {
       console.log(response);
     });
   });

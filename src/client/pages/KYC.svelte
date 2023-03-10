@@ -4,9 +4,9 @@
   import { onMount } from "svelte";
   import { request } from "../services/network.js";
   import { navigateTo } from "svelte-router-spa";
+  import dayjs from "dayjs";
+  //import { validateInput } from "./functions.js";
 
-  let requiredFields = [];
-  let bankList = getBankList();
   let user = {
     info: {
       basic_details: {
@@ -36,13 +36,20 @@
         account_type: "",
         ifsc_code: "",
       },
+      kyc_status: false,
     },
   };
+  function formatDate() {
+    let format = "YYYY-MM-DD";
+    user.info.basic_details.date_of_birth = dayjs(
+      user.info.basic_details.date_of_birth
+    ).format(format);
+  }
 
   onMount(async () => {
     request("/api/userauth/session/", "GET").then((data) => {
       user = data.user;
-      console.log(user);
+      formatDate();
     });
   });
   function getBankList() {
@@ -55,15 +62,63 @@
     ];
   }
 
+  function isNum(str) {
+    return /^\d+$/.test(str);
+  }
+
+  function validateInput() {
+    let format = "DD/MM/YYYY";
+    let panNumberRegex = new RegExp(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/);
+    let aadharNumberRegex = new RegExp(/^[0-9]{12}$/);
+    let err = null;
+    user.info.basic_details.date_of_birth = dayjs(
+      user.info.basic_details.date_of_birth
+    ).format(format);
+    if (!isNum(user.info.address.pin) || user.info.address.pin.length != 6) {
+      err = "Plase enter valid pin";
+    }
+    if (
+      !isNum(user.info.bank_account.account_number) ||
+      user.info.bank_account.account_number.length < 8 ||
+      user.info.bank_account.account_number.length > 16
+    ) {
+      err = "Plase enter valid account number";
+    }
+    if (
+      !isNum(user.info.bank_account.ifsc_code) ||
+      user.info.bank_account.ifsc_code.length != 11
+    ) {
+      err = "Plase enter valid ifsc code";
+    }
+    if (!isNum(user.info.basic_details.annual_income)) {
+      return (err = "Plase enter valid annual income");
+    }
+    if (panNumberRegex.test(user.info.identification.pan_number) == false) {
+      err = "Plase enter valid pan number";
+    }
+    if (
+      aadharNumberRegex.test(user.info.identification.aadhar_number) == false
+    ) {
+      err = "Plase enter valid aadhar number";
+    }
+    return err;
+  }
   let checkbox = false;
   async function handleKYC(e) {
     e.preventDefault();
-    if (checkbox) {
-      await request("/api/user", "PUT", user);
-      navigateTo("/landing");
-    } else {
+    if (!checkbox) {
       console.log("User has not confirmed the details");
+    } else {
+      let err = validateInput();
+      if (err != null) {
+        console.log(err);
+      } else {
+        user.info.kyc_status = true;
+        await request("/api/user", "PUT", user);
+        navigateTo("/splash");
+      }
     }
+    formatDate();
   }
 </script>
 
@@ -81,7 +136,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               placeholder="Full Name"
               bind:value={user.info.basic_details.full_name}
               required
@@ -91,21 +145,19 @@
           <FormGroup>
             <Input
               type="select"
-              name="datasource_id"
               required
               placeholder="Select"
               bind:value={user.info.basic_details.gender}
             >
-              <option>MALE</option>
-              <option>FEMALE</option>
-              <option>OTHER</option>
+              <option value="M">MALE</option>
+              <option value="F">FEMALE</option>
+              <option value="O">OTHER</option>
             </Input>
           </FormGroup>
           <Label for="name">Mobile Number</Label>
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               readonly
               placeholder="Mobile Number"
@@ -116,7 +168,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               readonly
               placeholder="Email"
@@ -127,7 +178,6 @@
           <FormGroup>
             <Input
               type="date"
-              name="datasource_id"
               required
               placeholder="DOB"
               bind:value={user.info.basic_details.date_of_birth}
@@ -137,7 +187,6 @@
           <FormGroup>
             <Input
               type="select"
-              name="datasource_id"
               required
               placeholder="Marital Status"
               bind:value={user.info.basic_details.marital_status}
@@ -152,7 +201,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Annual Income"
               bind:value={user.info.basic_details.annual_income}
@@ -162,7 +210,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="City"
               bind:value={user.info.address.city}
@@ -172,7 +219,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="State"
               bind:value={user.info.address.state}
@@ -182,7 +228,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Country"
               bind:value={user.info.address.country}
@@ -194,7 +239,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Pin"
               bind:value={user.info.address.pin}
@@ -204,7 +248,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Landmark"
               bind:value={user.info.address.landmark}
@@ -214,7 +257,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Address Line 1"
               bind:value={user.info.address.address_line_1}
@@ -224,7 +266,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Pan Number"
               bind:value={user.info.identification.pan_number}
@@ -234,7 +275,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Aadhaar Number"
               bind:value={user.info.identification.aadhar_number}
@@ -244,7 +284,6 @@
           <FormGroup>
             <Input
               type="select"
-              name="Bank Name"
               required
               placeholder="Bank Name"
               bind:value={user.info.bank_account.name}
@@ -259,7 +298,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="Account Number"
               bind:value={user.info.bank_account.account_number}
@@ -269,7 +307,6 @@
           <FormGroup>
             <Input
               type="select"
-              name="datasource_id"
               required
               placeholder="Account Type"
               bind:value={user.info.bank_account.account_type}
@@ -282,7 +319,6 @@
           <FormGroup>
             <Input
               type="text"
-              name="datasource_id"
               required
               placeholder="IFSC Code"
               bind:value={user.info.bank_account.ifsc_code}
@@ -301,7 +337,7 @@
           </div>
         </div>
         <div class="submit-btn">
-          <Button block type="submit">Submit</Button>
+          <Button block type="submit">Submit and Confirm KYC</Button>
         </div>
       </div>
     </form>

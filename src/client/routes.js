@@ -3,6 +3,7 @@ import Landing from "./pages/Landing.svelte";
 import SendToken from "./pages/SendToken.svelte";
 import NotFound from "./pages/NotFound.svelte";
 import KYC from "./pages/KYC.svelte";
+import Home from "./pages/Home.svelte";
 import PublicLayout from "./components/layout/PublicLayout.svelte";
 import DashboardLayout from "./components/layout/DashboardLayout.svelte";
 import { session } from "./services/store";
@@ -27,6 +28,11 @@ const routes = [
   {
     name: "/landing",
     component: Landing,
+    layout: DashboardLayout,
+  },
+  {
+    name: "/home",
+    component: Home,
     layout: DashboardLayout,
   },
   {

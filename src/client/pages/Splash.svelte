@@ -2,26 +2,35 @@
   import { navigateTo } from "svelte-router-spa";
   import { request } from "../services/network.js";
   import { session } from "../services/store.js";
+
+  function anyFieldEmpty(user) {
+    let details = user.info;
+    for (const objs in details) {
+      if (objs != "identification") {
+        for (const field in details[objs]) {
+          if (details[objs][field] == "") {
+            return false;
+          }
+        }
+      }
+    }
+    if (user.info.kyc_status == false) {
+      return false;
+    }
+    return true;
+  }
+
   request("/api/userauth/session/", "GET").then((data) => {
     session.set(data);
-    console.log(data);
+    //console.log(data);
     if (data.hasOwnProperty("user") && data.user.joined) {
-      if (
-        JSON.stringify(data.user.info.address) != "{}" &&
-        JSON.stringify(data.user.info.identification) != "{}" &&
-        JSON.stringify(data.user.info.bank_account) != "{}" &&
-        data.user.info.kyc_status != false
-      ) {
-        //navigateTo("/Home");
-        console.log("Welcome you user");
+      if (anyFieldEmpty(data.user)) {
+        navigateTo("/home");
       } else {
-        //navigateTo("/Onboarding");
-        // KYC?
-        //user.info["kyc_status"] = true;
         navigateTo("/kyc");
       }
     } else {
-      navigateTo("/onboarding");
+      navigateTo("/landing");
     }
   });
 </script>

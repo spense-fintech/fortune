@@ -3,7 +3,7 @@ import { errorResponse } from "./../commons/function.js";
 import jwt from "jsonwebtoken";
 import { existsSync } from "node:fs";
 const router = express.Router();
-// const jwt = require("jsonwebtoken");
+
 router
   .get("/test", async (req, res) => {
     const token = jwt.sign(
@@ -76,73 +76,81 @@ router
       }
     );
   })
-
-  /*.post("/", async (req, res) => {
+  .post("/", async (req, res) => {
     const token = jwt.sign(req.body.user, process.env.CLIENT_KEY, {
       algorithm: "HS256",
       header: { typ: "JWT", kid: process.env.CLIENT_ID },
     });
     try {
       //res.redirect("http://localhost:3000/api/auth/" + token)
-      res.status(200).send({ url: "http://localhost:3000/api/auth/" + token });
+      res
+        .status(200)
+        .send({ url: "http://localhost:3000/api/auth/token/" + token });
     } catch (err) {
       errorResponse(res, err);
     }
-  })*/
-
-  .get("/session", async (req, res) => {
-    res.send(req.session);
   });
+/*.get("/session", async (req, res) => {
+    res.send(req.session);
+  });*/
 
 async function checkLogin(req, token) {
   console.log(token);
-  const user = await db.query("SELECT * FROM user WHERE phone = ?", [
-    token.phone,
-  ]);
+  const user = await db.query(
+    "SELECT * FROM user WHERE phone = ? and phone_country_code = ?",
+    [token.phone, token.phone_country_code]
+  );
   if (user.length > 0) {
     req.session.user = user[0];
   } else {
     // await user.find[phone = token.phone]
-    await db.query("INSERT INTO user (phone, info) VALUES (?,?)", [
-      token.phone,
-      JSON.stringify({
-        basic_details: {
-          full_name: token.name,
-          gender:
-            token.gender === "Male"
-              ? "M"
-              : token.gender === "Female"
-              ? "F"
-              : "O",
-          mobile_number: token.phone,
-          email: token.email,
-          date_of_birth: "",
-          marital_status: "",
-          annual_income: "",
-        },
-        address: {
-          city: "",
-          state: "",
-          country: "",
-          pin: "",
-          landmark: "",
-          address_line_1: "",
-        },
-        identification: {
-          pan_number: "",
-          aadhar_number: "",
-        },
-        bank_account: {
-          name: "",
-          account_number: "",
-          account_type: "",
-          ifsc_code: "",
-        },
-      }),
-    ]);
-    const user = await db.query("SELECT * FROM user WHERE phone = ?", [
-      token.phone,
-    ]);
+    await db.query(
+      "INSERT INTO user (phone, phone_country_code, joined, info) VALUES (?,?,?,?)",
+      [
+        token.phone,
+        token.phone_country_code,
+        true,
+        JSON.stringify({
+          basic_details: {
+            full_name: token.name,
+            gender:
+              token.gender === "Male"
+                ? "M"
+                : token.gender === "Female"
+                ? "F"
+                : "O",
+            mobile_number: token.phone,
+            email: token.email,
+            date_of_birth: "",
+            marital_status: "",
+            annual_income: "",
+          },
+          address: {
+            city: "",
+            state: "",
+            country: "",
+            pin: "",
+            landmark: "",
+            address_line_1: "",
+          },
+          identification: {
+            pan_number: "",
+            aadhar_number: "",
+          },
+          bank_account: {
+            name: "",
+            account_number: "",
+            account_type: "",
+            ifsc_code: "",
+          },
+          kyc_status: false,
+        }),
+      ]
+    );
+    const user = await db.query(
+      "SELECT * FROM user WHERE phone = ? and phone_country_code = ?",
+      [token.phone, token.phone_country_code]
+    );
     req.session.user = user[0];
   }
 }
