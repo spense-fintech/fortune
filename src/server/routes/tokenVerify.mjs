@@ -107,11 +107,10 @@ async function checkLogin(req, token) {
   } else {
     // await user.find[phone = token.phone]
     await db.query(
-      "INSERT INTO user (phone, phone_country_code, joined, info) VALUES (?,?,?,?)",
+      "INSERT INTO user (phone, phone_country_code, info) VALUES (?,?,?)",
       [
         token.phone,
         token.phone_country_code,
-        true,
         JSON.stringify({
           basic_details: {
             full_name: token.name,
@@ -156,6 +155,7 @@ async function checkLogin(req, token) {
       [token.phone, token.phone_country_code]
     );
     req.session.user = user[0];
+    console.log(req.session.user);
   }
 }
 

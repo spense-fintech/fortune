@@ -120,11 +120,17 @@
         window.toast("Error", err, "danger");
         //console.log(err);
       } else {
-        user.info.kyc_status = true;
-        await request("/api/user", "PUT", user);
-        await p2pCall("CREATE_BASIC_DETAILS", user.user_id);
-        await p2pCall("INITIATE_KYC", user.user_id);
-        navigateTo("/");
+        try {
+          user.info.kyc_status = true;
+          delete user.created_at;
+          delete user.modified_at;
+          await request("/api/user", "PUT", user);
+          await p2pCall("CREATE_BASIC_DETAILS", user.user_id);
+          await p2pCall("INITIATE_KYC", user.user_id);
+          navigateTo("/");
+        } catch (err) {
+          navigateTo("/kyc");
+        }
       }
     }
     formatDate();

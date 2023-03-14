@@ -32,6 +32,15 @@ export async function p2pCall(APICode, user_id) {
     };
     user.info.token = response.response.token;
     user.info.user_id = response.response.user_id;
+    user.joined = true;
+    delete user.created_at;
+    delete user.modified_at;
+    await request("/api/user", "PUT", user);
+  }
+  if (APICode == "INITIAL_KYC") {
+    delete user.created_at;
+    delete user.modified_at;
+    user.info.kyc_status = true;
     await request("/api/user", "PUT", user);
   }
 }
