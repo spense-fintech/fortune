@@ -14,6 +14,7 @@ router
         gender: "Male",
         age: "20",
         income: "50000",
+        name: "Guest",
       },
       process.env.CLIENT_KEY,
       {
@@ -64,7 +65,7 @@ router
               const result = await checkLogin(req, payload);
               //console.log(result);
               //console.log(payload);
-              res.redirect("/splash");
+              res.redirect("/");
               //res.status(200).send({ message: "Session Saved" });
             } else {
               res.status(401).send({ message: "Token Expired" });
@@ -90,7 +91,8 @@ router
       errorResponse(res, err);
     }
   });
-/*.get("/session", async (req, res) => {
+/*
+  .get("/session", async (req, res) => {
     res.send(req.session);
   });*/
 
@@ -144,6 +146,8 @@ async function checkLogin(req, token) {
             ifsc_code: "",
           },
           kyc_status: false,
+          token: "",
+          user_id: "",
         }),
       ]
     );

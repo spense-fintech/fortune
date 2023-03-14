@@ -22,7 +22,7 @@ const routes = [
     layout: DashboardLayout,
   },
   {
-    name: "/splash",
+    name: "/",
     component: Splash,
     layout: DashboardLayout,
   },

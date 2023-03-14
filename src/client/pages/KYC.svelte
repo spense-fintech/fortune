@@ -6,8 +6,10 @@
   import { navigateTo } from "svelte-router-spa";
   import Button from "../components/commons/Button.svelte";
   import dayjs from "dayjs";
+  import { p2pCall } from "./function.js";
   //import { validateInput } from "./functions.js";
 
+  let bankList = [];
   let user = {
     info: {
       basic_details: {
@@ -51,10 +53,12 @@
     request("/api/userauth/session/", "GET").then((data) => {
       user = data.user;
       formatDate();
+      bankList = getBankList();
     });
   });
   function getBankList() {
     // API Call to LenDen
+    p2pCall("BANK_LIST", user.user_id);
     return [
       "BANK OF BARODA",
       "BASIN CATHOLIC BANK LIMITED",
@@ -108,15 +112,19 @@
   async function handleKYC(e) {
     e.preventDefault();
     if (!checkbox) {
-      console.log("User has not confirmed the details");
+      window.toast("Error", "Details not confirmed", "danger");
+      //console.log("User has not confirmed the details");
     } else {
       let err = validateInput();
       if (err != null) {
-        console.log(err);
+        window.toast("Error", err, "danger");
+        //console.log(err);
       } else {
         user.info.kyc_status = true;
         await request("/api/user", "PUT", user);
-        navigateTo("/splash");
+        await p2pCall("CREATE_BASIC_DETAILS", user.user_id);
+        await p2pCall("INITIATE_KYC", user.user_id);
+        navigateTo("/");
       }
     }
     formatDate();
@@ -338,12 +346,7 @@
           </div>
         </div>
         <div class="submit-btn">
-          <Button
-            title="Submit and Confirm KYC"
-            onclick={() => {
-              navigateTo("");
-            }}
-          />
+          <Button title="Submit and Confirm KYC" />
         </div>
       </div>
     </form>
