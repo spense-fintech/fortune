@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
   import Collapse from "sveltestrap/src/Collapse.svelte";
   import Nav from "sveltestrap/src/Nav.svelte";
   export let menu = { title: "", icon: "", url: "javascript:void(0)" };
@@ -46,4 +46,4 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-</style>
+</style> -->

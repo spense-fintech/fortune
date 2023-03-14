@@ -1,9 +1,10 @@
 <script>
-  import { CardBody, CardHeader, FormGroup, Label, Button } from "sveltestrap";
+  import { CardBody, CardHeader, FormGroup, Label } from "sveltestrap";
   import Input from "sveltestrap/src/Input.svelte";
   import { onMount } from "svelte";
   import { request } from "../services/network.js";
   import { navigateTo } from "svelte-router-spa";
+  import Button from "../components/commons/Button.svelte";
   import dayjs from "dayjs";
   //import { validateInput } from "./functions.js";
 
@@ -337,7 +338,12 @@
           </div>
         </div>
         <div class="submit-btn">
-          <Button block type="submit">Submit and Confirm KYC</Button>
+          <Button
+            title="Submit and Confirm KYC"
+            onclick={() => {
+              navigateTo("");
+            }}
+          />
         </div>
       </div>
     </form>

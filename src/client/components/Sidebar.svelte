@@ -1,11 +1,11 @@
-<script>
+<!-- <script>
   import { onMount } from "svelte";
   let path = "";
   onMount(() => {
     path = window.location.pathname;
   });
   import Nav from "sveltestrap/src/Nav.svelte";
-  import SidebarItem from "./SidebarItem.svelte";
+  import SidebarItem from "./SidebarItem.txt";
   export let theme;
   $: sidenav_theme = `sb-sidenav-${theme}`;
   let menus = [
@@ -40,4 +40,4 @@
       {/each}
     </div>
   </Nav>
-</div>
+</div> -->
